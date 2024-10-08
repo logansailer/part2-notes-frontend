@@ -3,6 +3,7 @@ import Note from "./components/Note";
 import Notification from "./components/Notification";
 import Footer from "./components/Footer";
 import noteService from "./services/notes";
+import loginService from "./services/login";
 
 const App = () => {
   const [notes, setNotes] = useState([]);
@@ -17,6 +18,15 @@ const App = () => {
     noteService.getAll().then((initialNotes) => {
       setNotes(initialNotes);
     });
+  }, []);
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      noteService.setToken(user.token);
+    }
   }, []);
 
   const addNote = (event) => {
@@ -64,7 +74,8 @@ const App = () => {
         password,
       });
 
-      noteService.setToken(user.token)
+      window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
+      noteService.setToken(user.token);
       setUser(user);
       setUsername("");
       setPassword("");
